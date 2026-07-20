@@ -1,89 +1,44 @@
-const navItems = document.querySelectorAll('.nav-item');
-const panels = document.querySelectorAll('.panel-content');
-const topbarTitle = document.getElementById('topbarTitle');
-const sidebar = document.querySelector('.sidebar');
-const toggleSidebarBtn = document.getElementById('toggleSidebar');
+const header = document.querySelector('#siteHeader');
+const menuButton = document.querySelector('.menu-toggle');
+const mobileMenu = document.querySelector('#mobileMenu');
 
-// Sample dataset for the Sheets panel
-const tableData = [
-  { date: '5/1/2024', region: 'North', product: 'Widget A', category: 'Gadgets', sales: 12450, qty: 120, profit: 3240 },
-  { date: '5/2/2024', region: 'South', product: 'Widget A', category: 'Gadgets', sales: 9230, qty: 110, profit: 2130 },
-  { date: '5/3/2024', region: 'East', product: 'Widget B', category: 'Devices', sales: 15980, qty: 140, profit: 4010 },
-  { date: '5/4/2024', region: 'West', product: 'Widget C', category: 'Gadgets', sales: 8760, qty: 95, profit: 1890 }
-];
+window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 24), { passive: true });
 
-let currentSortKey = null;
-let sortAscending = true;
-
-function renderTable() {
-  const tbody = document.querySelector('#dataTable tbody');
-  if (!tbody) return;
-  // Create a copy of data to sort
-  let sorted = [...tableData];
-  if (currentSortKey) {
-    sorted.sort((a, b) => {
-      const valA = a[currentSortKey];
-      const valB = b[currentSortKey];
-      if (typeof valA === 'number' && typeof valB === 'number') {
-        return sortAscending ? valA - valB : valB - valA;
-      }
-      return sortAscending ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
-    });
-  }
-  // Build rows
-  tbody.innerHTML = '';
-  for (const row of sorted) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.date}</td>
-      <td>${row.region}</td>
-      <td>${row.product}</td>
-      <td>${row.category}</td>
-      <td>$${row.sales.toLocaleString()}</td>
-      <td>${row.qty}</td>
-      <td>$${row.profit.toLocaleString()}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-}
-
-function setupTableSorting() {
-  const headers = document.querySelectorAll('#dataTable th');
-  headers.forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.getAttribute('data-key');
-      if (currentSortKey === key) {
-        // Toggle sort direction
-        sortAscending = !sortAscending;
-      } else {
-        currentSortKey = key;
-        sortAscending = true;
-      }
-      renderTable();
-    });
-  });
-  // Initial render
-  renderTable();
-}
-
-navItems.forEach(item => {
-  item.addEventListener('click', () => {
-    const panelId = item.getAttribute('data-panel');
-    navItems.forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    panels.forEach(p => p.style.display = 'none');
-    document.getElementById('panel-' + panelId).style.display = 'block';
-    topbarTitle.textContent = panelId.charAt(0).toUpperCase() + panelId.slice(1);
-  });
+menuButton?.addEventListener('click', () => {
+  const open = menuButton.getAttribute('aria-expanded') === 'true';
+  menuButton.setAttribute('aria-expanded', String(!open));
+  mobileMenu.classList.toggle('open', !open);
+  document.body.classList.toggle('menu-open', !open);
 });
 
-if (toggleSidebarBtn) {
-  toggleSidebarBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('collapsed');
+mobileMenu?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+  menuButton.setAttribute('aria-expanded', 'false');
+  mobileMenu.classList.remove('open');
+  document.body.classList.remove('menu-open');
+}));
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+const visual = document.querySelector('.hero-visual');
+if (visual && window.matchMedia('(pointer: fine)').matches) {
+  visual.addEventListener('pointermove', event => {
+    const box = visual.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width - 0.5;
+    const y = (event.clientY - box.top) / box.height - 0.5;
+    visual.style.setProperty('--rx', `${-y * 2.2}deg`);
+    visual.style.setProperty('--ry', `${x * 2.2}deg`);
+  });
+  visual.addEventListener('pointerleave', () => {
+    visual.style.setProperty('--rx', '0deg');
+    visual.style.setProperty('--ry', '0deg');
   });
 }
-
-// Initialize the sheet table and sorting once the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  setupTableSorting();
-});
