@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiftIQ Live Workspace</title>
+    <style>
+      html, body { height: 100%; margin: 0; background: #0b0f14; color: #dbe8f4; font-family: "Segoe UI", Arial, sans-serif; }
+      body { display: grid; place-items: center; }
+      .loader { display: grid; justify-items: center; gap: 14px; }
+      .loader span { width: 34px; height: 34px; border: 3px solid #28445f; border-top-color: #55a9ff; border-radius: 50%; animation: spin .8s linear infinite; }
+      .loader p { margin: 0; color: #8fa6b9; font-size: 13px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div class="loader"><span></span><p>Loading SiftIQ workspace...</p></div>
+    <script>
+      (async () => {
+        const files = Array.from({ length: 22 }, (_, index) => `parts/chunk-${String(index).padStart(2, "0")}.txt`);
+        const chunks = await Promise.all(files.map(async (file) => {
+          const response = await fetch(file);
+          if (!response.ok) throw new Error(`Unable to load ${file}`);
+          return response.text();
+        }));
+        const binary = atob(chunks.join(""));
+        const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+        const html = new TextDecoder().decode(bytes);
+        document.open();
+        document.write(html);
+        document.close();
+      })().catch((error) => {
+        document.body.innerHTML = `<p>Unable to load the product preview: ${error.message}</p>`;
+      });
+    </script>
+  </body>
+</html>
