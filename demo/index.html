@@ -19,7 +19,7 @@
       (async () => {
         const files = Array.from({ length: 22 }, (_, index) => `parts/chunk-${String(index).padStart(2, "0")}.txt`);
         const chunks = await Promise.all(files.map(async (file) => {
-          const response = await fetch(file);
+          const response = await fetch(`${file}?v=65973ed1`, { cache: "no-store" });
           if (!response.ok) throw new Error(`Unable to load ${file}`);
           return response.text();
         }));
