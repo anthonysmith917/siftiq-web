@@ -51,8 +51,15 @@ img { display: block; max-width: 100%; }
 .hero-signal { position: absolute; right: -22px; bottom: -28px; display: flex; align-items: baseline; gap: 10px; padding: 16px 20px; color: #f5f9fc; background: #10283d; border: 1px solid #31506a; border-radius: 5px; box-shadow: 0 16px 38px rgba(0, 0, 0, 0.42); }
 .hero-signal b { font-size: 25px; }.hero-signal span { color: #cdd8e1; font-size: 12px; }
 
-.capability-strip { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 18px; padding: 22px 4vw; color: #dbe6ef; background: #10283d; border-block: 1px solid #294257; font-size: 11px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
-.capability-strip i { width: 4px; height: 4px; background: var(--lime); transform: rotate(45deg); }
+.capability-strip { width: 100%; overflow: hidden; color: #dbe6ef; background: #10283d; border-block: 1px solid #294257; font-size: 12px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
+.capability-track { display: flex; width: max-content; animation: capability-scroll 28s linear infinite; will-change: transform; }
+.capability-group { display: flex; flex: none; align-items: center; gap: 30px; padding: 22px 15px; }
+.capability-group span { white-space: nowrap; }
+.capability-group i { flex: none; width: 7px; height: 7px; background: var(--lime); transform: rotate(45deg); }
+
+@keyframes capability-scroll {
+  to { transform: translateX(-50%); }
+}
 
 .intro { max-width: 920px; margin: 0 auto; padding: 130px 4vw 76px; text-align: center; }
 .intro h2, .privacy-band h2, .demo-heading h2, .closing h2 { margin: 0; font-size: clamp(40px, 5vw, 72px); line-height: 1.02; }
@@ -163,7 +170,8 @@ footer small { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid rgb
   .hero h1 { font-size: 52px; }
   .hero-actions { align-items: flex-start; flex-direction: column; }
   .hero-signal { right: 12px; bottom: -42px; }
-  .capability-strip { justify-content: flex-start; padding-left: 20px; }
+  .capability-strip { font-size: 11px; }
+  .capability-group { gap: 22px; padding-block: 18px; }
   .intro, .feature-showcase, .demo-callout { padding-left: 20px; padding-right: 20px; }
   .feature-tabs { grid-template-columns: repeat(5, minmax(86px, 1fr)); overflow-x: auto; }
   .privacy-band { padding: 90px 20px; }
@@ -183,4 +191,7 @@ footer small { grid-column: 1 / -1; padding-top: 24px; border-top: 1px solid rgb
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; }
+  .capability-track { animation: none; }
+  .capability-group[aria-hidden="true"] { display: none; }
+  .capability-group { flex-wrap: wrap; justify-content: center; width: 100vw; }
 }
